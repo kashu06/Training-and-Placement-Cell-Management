@@ -419,7 +419,7 @@ Update in `company-dashboard.js`:
 23DCS014 - KanishK
 23DCS015 - Kashish Choudhary
 23DCS019 - Poojith
-23DCS20  - Nikhil Panthi
+23DCS020  - Nikhil Panthi
 
 ## 📄 License
 
