@@ -415,16 +415,11 @@ Update in `company-dashboard.js`:
 <option value="Part-Time">Part-Time</option>
 ```
 
-## 🚀 Deployment
-
-To deploy this application:
-
-1. **Backend**: Deploy to Heroku, AWS, or any Node.js hosting
-   - Set environment variables on hosting platform
-   - Use managed MySQL database
-
-2. **Frontend**: Deploy to Netlify, Vercel, or GitHub Pages
-   - Update `API_BASE_URL` in `api.js` to production backend URL
+## 🚀 Team Members
+23DCS014 - KanishK
+23DCS015 - Kashish Choudhary
+23DCS019 - Poojith
+23DCS20  - Nikhil Panthi
 
 ## 📄 License
 
