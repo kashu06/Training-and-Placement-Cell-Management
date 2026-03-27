@@ -5,6 +5,6 @@ Database management system Lab Project
 
 23DCS015 - Kashish Choudhary
 
-23DCS019 - Poojith Chowdary
+23DCS019 - Maddipatla Poojith Chowdary
 
 23DCS020 - Nikhil Panthi
