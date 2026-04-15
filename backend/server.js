@@ -1,13 +1,24 @@
 const express = require('express');
 const cors = require('cors');
 const sequelize = require('./config/database');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static('uploads'));
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');

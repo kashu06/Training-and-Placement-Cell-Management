@@ -32,6 +32,9 @@ async function showStudentProfile(container) {
     const response = await api.getStudentById(currentUser.student_id);
     const student = response.data;
 
+    const hasResume = student.resume_link && student.resume_link.trim() !== '';
+    const resumeStatus = hasResume ? 'Resume uploaded' : 'Resume not uploaded';
+
     const content = `
       <div style="max-width: 600px;">
         <h2>My Profile</h2>
@@ -43,7 +46,26 @@ async function showStudentProfile(container) {
           <p><strong>Branch:</strong> ${student.branch}</p>
           <p><strong>Batch:</strong> ${student.batch}</p>
           <p><strong>CGPA:</strong> ${student.cgpa}</p>
-          <p><strong>Resume:</strong> ${student.resume_link ? `<a href="${student.resume_link}" target="_blank">${student.resume_link}</a>` : 'Not uploaded'}</p>
+          
+          <div style="margin-top: 20px; padding: 12px; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px;">
+            <div style="margin-bottom: 10px;">
+              <p style="margin: 0 0 3px 0; font-size: 13px;"><strong>Resume Status:</strong> 
+                <span style="display: inline-block; padding: 2px 6px; border-radius: 3px; background-color: ${hasResume ? '#d4edda' : '#f8d7da'}; color: ${hasResume ? '#155724' : '#721c24'}; font-size: 11px; font-weight: 600;">
+                  ${resumeStatus}
+                </span>
+              </p>
+              ${hasResume ? `<p style="margin: 5px 0 0 0; font-size: 12px;"><a href="http://localhost:5000${student.resume_link}" target="_blank" style="color: #667eea; text-decoration: none;">View Uploaded Resume</a></p>` : ''}
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <input type="file" id="resume-file-input" accept=".pdf" style="display: none;" onchange="handleResumeUpload(event)">
+              <button class="btn btn-primary" style="padding: 8px 12px; font-size: 13px;" onclick="document.getElementById('resume-file-input').click()">
+                ${hasResume ? 'Replace Resume' : 'Upload Resume'}
+              </button>
+              ${hasResume ? `<button class="btn btn-danger" style="padding: 8px 12px; font-size: 13px;" onclick="deleteStudentResume()">Delete</button>` : ''}
+              <span style="font-size: 11px; color: #999;">PDF only, max 5MB</span>
+            </div>
+          </div>
         </div>
         <button class="btn btn-primary mt-20" onclick="showEditProfileForm()">Edit Profile</button>
       </div>
@@ -66,10 +88,6 @@ function showEditProfileForm() {
         <label>CGPA</label>
         <input type="number" id="cgpa" step="0.01" min="0" max="10" value="${currentUser.cgpa || ''}">
       </div>
-      <div class="form-group">
-        <label>Resume Link</label>
-        <input type="url" id="resume_link" value="">
-      </div>
       <button type="submit" class="btn btn-primary" style="width: 100%;">Update</button>
     </form>
     <div style="text-align: center; margin-top: 15px;">
@@ -83,12 +101,48 @@ async function handleUpdateProfile(event) {
 
   const phone = document.getElementById('phone').value;
   const cgpa = parseFloat(document.getElementById('cgpa').value);
-  const resume_link = document.getElementById('resume_link').value;
 
   try {
-    await api.updateStudentProfile(currentUser.student_id, phone, cgpa, resume_link);
+    await api.updateStudentProfile(currentUser.student_id, phone, cgpa, null);
     closeModal();
     showAlert('Profile updated successfully!', 'success');
+    showStudentProfile(document.getElementById('section-content'));
+  } catch (error) {
+    showAlert(error.message, 'error');
+  }
+}
+
+async function handleResumeUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  // Validate file type
+  if (file.type !== 'application/pdf') {
+    showAlert('Only PDF files are allowed', 'error');
+    return;
+  }
+
+  // Validate file size (5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showAlert('File size must be less than 5MB', 'error');
+    return;
+  }
+
+  try {
+    await api.uploadResume(currentUser.student_id, file);
+    showAlert('Resume uploaded successfully!', 'success');
+    showStudentProfile(document.getElementById('section-content'));
+  } catch (error) {
+    showAlert(error.message, 'error');
+  }
+}
+
+async function deleteStudentResume() {
+  if (!confirm('Are you sure you want to delete your resume?')) return;
+  
+  try {
+    await api.deleteResume(currentUser.student_id);
+    showAlert('Resume deleted successfully!', 'success');
     showStudentProfile(document.getElementById('section-content'));
   } catch (error) {
     showAlert(error.message, 'error');

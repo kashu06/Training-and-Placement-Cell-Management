@@ -230,8 +230,14 @@ function renderLoginForm(role, type = 'login') {
               <option value="">Select Branch</option>
               <option value="CSE">CSE</option>
               <option value="ECE">ECE</option>
-              <option value="MECH">MECH</option>
-              <option value="CIVIL">CIVIL</option>
+              <option value="EEE">EEE</option>
+              <option value="Mechanical">Mechanical</option>
+              <option value="Civil">Civil</option>
+              <option value="Chemical">Chemical</option>
+              <option value="Material Science">Material Science</option>
+              <option value="MNC">Mathematics and Computing (MNC)</option>
+              <option value="Dual Degree CSE">Dual Degree CSE</option>
+              <option value="Dual Degree ECE">Dual Degree ECE</option>
             </select>
           </div>
           <div class="form-group">

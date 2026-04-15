@@ -167,6 +167,37 @@ class APIClient {
   async adminGetAllApplications() {
     return this.request('/admin/applications');
   }
+
+  // Resume APIs
+  async uploadResume(studentId, file) {
+    try {
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      const options = {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: formData
+      };
+
+      const response = await fetch(`${API_BASE_URL}/students/${studentId}/upload-resume`, options);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to upload resume');
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteResume(studentId) {
+    return this.request(`/students/${studentId}/delete-resume`, 'DELETE');
+  }
 }
 
 const api = new APIClient();
