@@ -99,17 +99,17 @@ function loadHome() {
       <div class="container">
         <div class="role-cards">
           <div class="role-card">
-            <h2>👨‍🎓 Student</h2>
+            <h2>Student</h2>
             <p>Apply for internships and job placements, track your applications, and manage your profile.</p>
             <button class="btn btn-primary" onclick="showLoginSignupModal('student')">Get Started</button>
           </div>
           <div class="role-card">
-            <h2>🏢 Company</h2>
+            <h2>Company</h2>
             <p>Post job openings, manage applicants, and find the best talent for your organization.</p>
             <button class="btn btn-secondary" onclick="showLoginSignupModal('company')">Get Started</button>
           </div>
           <div class="role-card">
-            <h2>👨‍💼 Admin</h2>
+            <h2>Admin</h2>
             <p>Monitor all activities, manage student profiles, companies, and view analytics.</p>
             <button class="btn btn-info" onclick="showLoginSignupModal('admin')">Get Started</button>
           </div>
@@ -230,8 +230,14 @@ function renderLoginForm(role, type = 'login') {
               <option value="">Select Branch</option>
               <option value="CSE">CSE</option>
               <option value="ECE">ECE</option>
-              <option value="MECH">MECH</option>
-              <option value="CIVIL">CIVIL</option>
+              <option value="EEE">EEE</option>
+              <option value="Mechanical">Mechanical</option>
+              <option value="Civil">Civil</option>
+              <option value="Chemical">Chemical</option>
+              <option value="Material Science">Material Science</option>
+              <option value="MNC">Mathematics and Computing (MNC)</option>
+              <option value="Dual Degree CSE">Dual Degree CSE</option>
+              <option value="Dual Degree ECE">Dual Degree ECE</option>
             </select>
           </div>
           <div class="form-group">

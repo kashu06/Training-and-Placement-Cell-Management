@@ -76,6 +76,54 @@ class APIClient {
     return this.request(`/students/${id}`, 'PUT', { phone, cgpa, resume_link });
   }
 
+  async uploadResume(id, file) {
+    try {
+      const formData = new FormData();
+      formData.append('resume', file);
+
+      const options = {
+        method: 'POST',
+        headers: {
+          ...(this.token && { 'Authorization': `Bearer ${this.token}` })
+        },
+        body: formData
+      };
+
+      const response = await fetch(`${API_BASE_URL}/students/${id}/upload-resume`, options);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to upload resume');
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteResume(id) {
+    try {
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      };
+
+      const response = await fetch(`${API_BASE_URL}/students/${id}/delete-resume`, options);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to delete resume');
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Company APIs
   async getAllCompanies() {
     return this.request('/companies');

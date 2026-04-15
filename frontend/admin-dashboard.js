@@ -227,28 +227,4 @@ async function showAdminApplications(container) {
   }
 }
 
-// Call on page load if admin is logged in
-if (currentUser && currentUser.role === 'admin') {
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      const content = document.getElementById('admin-content');
-      if (content) {
-        initAdminDashboard();
-      }
-    }, 100);
-  });
 
-  // Also call when loadHome is called
-  const originalLoadHome = window.loadHome;
-  window.loadHome = function() {
-    originalLoadHome.call(this);
-    if (currentUser && currentUser.role === 'admin') {
-      setTimeout(() => {
-        const content = document.getElementById('admin-content');
-        if (content) {
-          initAdminDashboard();
-        }
-      }, 100);
-    }
-  };
-}

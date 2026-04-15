@@ -32,6 +32,10 @@ async function showStudentProfile(container) {
     const response = await api.getStudentById(currentUser.student_id);
     const student = response.data;
 
+    const hasResume = student.resume_link && student.resume_link.trim() !== '';
+    const resumeStatus = hasResume ? 'Resume uploaded' : 'Resume not uploaded';
+    const statusClass = hasResume ? 'success' : 'error';
+
     const content = `
       <div style="max-width: 600px;">
         <h2>My Profile</h2>
@@ -43,7 +47,26 @@ async function showStudentProfile(container) {
           <p><strong>Branch:</strong> ${student.branch}</p>
           <p><strong>Batch:</strong> ${student.batch}</p>
           <p><strong>CGPA:</strong> ${student.cgpa}</p>
-          <p><strong>Resume:</strong> ${student.resume_link ? `<a href="${student.resume_link}" target="_blank">${student.resume_link}</a>` : 'Not uploaded'}</p>
+          
+          <div style="margin-top: 20px; padding: 12px; background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 6px;">
+            <div style="margin-bottom: 10px;">
+              <p style="margin: 0 0 3px 0; font-size: 13px;"><strong>Resume Status:</strong> 
+                <span style="display: inline-block; padding: 2px 6px; border-radius: 3px; background-color: ${hasResume ? '#d4edda' : '#f8d7da'}; color: ${hasResume ? '#155724' : '#721c24'}; font-size: 11px; font-weight: 600;">
+                  ${resumeStatus}
+                </span>
+              </p>
+              ${hasResume ? `<p style="margin: 5px 0 0 0; font-size: 12px;"><a href="http://localhost:5000${student.resume_link}" target="_blank" style="color: #667eea; text-decoration: none;">View Uploaded Resume</a></p>` : ''}
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+              <input type="file" id="resume-file-input" accept=".pdf" style="display: none;" onchange="handleResumeUpload(event)">
+              <button class="btn btn-primary" style="padding: 8px 12px; font-size: 13px;" onclick="document.getElementById('resume-file-input').click()">
+                ${hasResume ? 'Replace Resume' : 'Upload Resume'}
+              </button>
+              ${hasResume ? `<button class="btn btn-danger" style="padding: 8px 12px; font-size: 13px;" onclick="deleteStudentResume()">Delete</button>` : ''}
+              <span style="font-size: 11px; color: #999;">PDF only, max 5MB</span>
+            </div>
+          </div>
         </div>
         <button class="btn btn-primary mt-20" onclick="showEditProfileForm()">Edit Profile</button>
       </div>
@@ -185,6 +208,63 @@ async function showStudentApplications(container) {
     container.innerHTML = html;
   } catch (error) {
     container.innerHTML = `<div class="alert alert-error">${error.message}</div>`;
+  }
+}
+
+// ==================== RESUME UPLOAD HANDLERS ====================
+async function handleResumeUpload(event) {
+  const files = event.target.files;
+  
+  if (!files || files.length === 0) {
+    showAlert('Please select a file', 'error');
+    return;
+  }
+
+  const file = files[0];
+
+  // Validate file type
+  if (file.type !== 'application/pdf') {
+    showAlert('Only PDF files are allowed', 'error');
+    document.getElementById('resume-file-input').value = '';
+    return;
+  }
+
+  // Validate file size (5MB)
+  const maxSize = 5 * 1024 * 1024;
+  if (file.size > maxSize) {
+    showAlert('File size must not exceed 5MB', 'error');
+    document.getElementById('resume-file-input').value = '';
+    return;
+  }
+
+  try {
+    // Show loading feedback
+    const uploadBtn = event.target.previousElementSibling;
+    if (uploadBtn) uploadBtn.disabled = true;
+
+    const response = await api.uploadResume(currentUser.student_id, file);
+    
+    showAlert('Resume uploaded successfully!', 'success');
+    // Refresh the profile to show updated resume
+    showStudentProfile(document.getElementById('section-content'));
+  } catch (error) {
+    showAlert(error.message || 'Failed to upload resume', 'error');
+    document.getElementById('resume-file-input').value = '';
+  }
+}
+
+async function deleteStudentResume() {
+  if (!confirm('Are you sure you want to delete your resume? This action cannot be undone.')) {
+    return;
+  }
+
+  try {
+    await api.deleteResume(currentUser.student_id);
+    showAlert('Resume deleted successfully', 'success');
+    // Refresh the profile to show updated resume status
+    showStudentProfile(document.getElementById('section-content'));
+  } catch (error) {
+    showAlert(error.message || 'Failed to delete resume', 'error');
   }
 }
 

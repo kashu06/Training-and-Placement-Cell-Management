@@ -81,9 +81,82 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+// ==================== UPLOAD RESUME ====================
+const uploadResume = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Check file type (must be PDF)
+    if (req.file.mimetype !== 'application/pdf') {
+      return res.status(400).json({ message: 'Only PDF files are allowed' });
+    }
+
+    // Find student
+    const student = await Student.findByPk(id);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    // Save the file path to database
+    const filePath = `/uploads/${req.file.filename}`;
+    student.resume_link = filePath;
+    await student.save();
+
+    res.status(200).json({
+      message: 'Resume uploaded successfully',
+      data: {
+        student_id: student.student_id,
+        resume_link: student.resume_link,
+        filename: req.file.filename
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// ==================== DELETE RESUME ====================
+const deleteResume = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fs = require('fs');
+    const path = require('path');
+
+    const student = await Student.findByPk(id);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    if (!student.resume_link) {
+      return res.status(400).json({ message: 'No resume uploaded' });
+    }
+
+    // Delete file from filesystem
+    const filePath = path.join(__dirname, '..', student.resume_link);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+
+    // Update database
+    student.resume_link = null;
+    await student.save();
+
+    res.status(200).json({ message: 'Resume deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   getAllStudents,
   getStudentById,
   updateStudentProfile,
-  deleteStudent
+  deleteStudent,
+  uploadResume,
+  deleteResume
 };

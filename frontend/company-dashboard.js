@@ -90,14 +90,20 @@ function showPostJobForm(container) {
           <input type="number" id="salary" min="0">
         </div>
         <div class="form-group">
-          <label>Eligible Branches (Select Multiple)</label>
-          <select id="eligible_branches" multiple size="5">
-            <option value="CSE">CSE</option>
-            <option value="ECE">ECE</option>
-            <option value="MECH">MECH</option>
-            <option value="CIVIL">CIVIL</option>
-          </select>
-          <small>Hold Ctrl/Cmd to select multiple. Leave empty for all branches.</small>
+          <label>Eligible Branches (Check to include)</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; background-color: #f5f5f5; border-radius: 4px;">
+            <div><input type="checkbox" id="branch_cse" value="CSE"> <label style="display: inline; margin-left: 5px;">CSE</label></div>
+            <div><input type="checkbox" id="branch_ece" value="ECE"> <label style="display: inline; margin-left: 5px;">ECE</label></div>
+            <div><input type="checkbox" id="branch_eee" value="EEE"> <label style="display: inline; margin-left: 5px;">EEE</label></div>
+            <div><input type="checkbox" id="branch_mech" value="Mechanical"> <label style="display: inline; margin-left: 5px;">Mechanical</label></div>
+            <div><input type="checkbox" id="branch_civil" value="Civil"> <label style="display: inline; margin-left: 5px;">Civil</label></div>
+            <div><input type="checkbox" id="branch_chem" value="Chemical"> <label style="display: inline; margin-left: 5px;">Chemical</label></div>
+            <div><input type="checkbox" id="branch_ms" value="Material Science"> <label style="display: inline; margin-left: 5px;">Material Science</label></div>
+            <div><input type="checkbox" id="branch_mnc" value="MNC"> <label style="display: inline; margin-left: 5px;">MNC</label></div>
+            <div><input type="checkbox" id="branch_dd_cse" value="Dual Degree CSE"> <label style="display: inline; margin-left: 5px;">Dual Degree CSE</label></div>
+            <div><input type="checkbox" id="branch_dd_ece" value="Dual Degree ECE"> <label style="display: inline; margin-left: 5px;">Dual Degree ECE</label></div>
+          </div>
+          <small style="display: block; margin-top: 8px; color: #666;">Leave unchecked to allow all branches</small>
         </div>
         <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 20px;">Post Job</button>
       </form>
@@ -114,8 +120,15 @@ async function handlePostJob(event) {
   const min_cgpa = parseFloat(document.getElementById('min_cgpa').value) || 0;
   const salary = parseInt(document.getElementById('salary').value) || null;
   
-  const selectElement = document.getElementById('eligible_branches');
-  const eligible_branches = Array.from(selectElement.selectedOptions).map(opt => opt.value);
+  // Collect checked branch checkboxes
+  const branchCheckboxes = [
+    'branch_cse', 'branch_ece', 'branch_eee', 'branch_mech', 'branch_civil',
+    'branch_chem', 'branch_ms', 'branch_mnc', 'branch_dd_cse', 'branch_dd_ece'
+  ];
+  
+  const eligible_branches = branchCheckboxes
+    .filter(id => document.getElementById(id) && document.getElementById(id).checked)
+    .map(id => document.getElementById(id).value);
 
   try {
     await api.createJob(
@@ -261,6 +274,7 @@ async function showCompanyApplicants(container) {
         html += `<tr><td colspan="7" style="text-align: center;">No applicants for ${job.job_title}</td></tr>`;
       } else {
         applications.forEach((app, idx) => {
+          const hasResume = app.Student.resume_link && app.Student.resume_link.trim() !== '';
           html += `
             <tr>
               <td>${job.job_title}</td>
@@ -269,7 +283,8 @@ async function showCompanyApplicants(container) {
               <td>${app.Student.cgpa}</td>
               <td><span class="status status-${app.status.toLowerCase()}">${app.status}</span></td>
               <td>${new Date(app.application_date).toLocaleDateString()}</td>
-              <td>
+              <td style="display: flex; gap: 5px; align-items: center;">
+                ${hasResume ? `<a href="http://localhost:5000${app.Student.resume_link}" target="_blank" class="btn btn-info" style="padding: 4px 8px; font-size: 12px; text-decoration: none;">Resume</a>` : '<span style="color: #999; font-size: 12px;">No Resume</span>'}
                 <select onchange="updateAppStatus(${app.application_id}, this.value)" style="padding: 5px;">
                   <option value="${app.status}">${app.status}</option>
                   <option value="Shortlisted">Shortlisted</option>
