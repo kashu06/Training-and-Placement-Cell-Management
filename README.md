@@ -415,11 +415,6 @@ Update in `company-dashboard.js`:
 <option value="Part-Time">Part-Time</option>
 ```
 
-## 🚀 Team Members
-23DCS014 - KanishK
-23DCS015 - Kashish Choudhary
-23DCS019 - Poojith
-23DCS020  - Nikhil Panthi
 
 ## 📄 License
 
